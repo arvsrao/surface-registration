@@ -14,7 +14,7 @@
  *  3. 't' can not be more than total surface area of the triangle mesh.
  *  4. C is expected to be padded with a zero.
  */
- int binary_search_vector(double t, Eigen::MatrixXd& C);
+ int binary_search_vector(const double t, const Eigen::MatrixXd &C);
 
 // RANDOM_POINTS_ON_MESH Randomly sample a mesh (V,F) n times.
 //

@@ -24,7 +24,7 @@ Eigen::RowVector3d generate_point_on_face(
     double a = generator();
     double b = generator();
 
-    return a1 + a * (a3 - a1) + b * (a2 -a1);
+    return a1 + (a * (a3 - a1)) + (b * (a2 -a1));
 }
 
 /** Binary search of a vector.
@@ -33,14 +33,15 @@ Eigen::RowVector3d generate_point_on_face(
  * @param C the vector (Nx1) to be searched.
  * @return an greatest index, idx, where t > C[idx].
  */
-int binary_search_vector(double t, Eigen::MatrixXd& C) {
+int binary_search_vector(const double t, const Eigen::MatrixXd& C) {
+    int N = C.rows()-1;
     assert(C.cols() == 1);
     assert(C(0,0) == 0);
-    assert(t <= C(C.rows()-1,0));
+    assert(t <= C(N,0));
 
     auto func = [](int m) { return (int) std::ceil(double(m)/2.0); };
 
-    for (int j = (C.rows()-1) / 2, m = func(j); j + 1 < C.rows() && j > -1; m = func(m)) {
+    for (int j = N/2, m = func(j); N > j && j > -1; m = func(m)) {
 
         if (C(j,0) < t && t <= C(j+1,0)) return j;
         j += (t > C(j+1,0)) ? m : -m;
