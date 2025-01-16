@@ -4,9 +4,9 @@
 #include "igl/face_areas.h"
 #include "igl/cumsum.h"
 
-class GenerateNumberInUnitInterval {
+class GenerateNumberWithinInterval {
 public:
-    GenerateNumberInUnitInterval(double upperLimit) : _random_engine(std::random_device{}()), _distribution(0, upperLimit) {}
+    GenerateNumberWithinInterval(double upperLimit) : _random_engine(std::random_device{}()), _distribution(0, upperLimit) {}
 
     double operator()() { return _distribution(_random_engine); }
 
@@ -16,27 +16,32 @@ private:
 };
 
 Eigen::RowVector3d generate_point_on_face(
-        const Eigen::RowVector3d& a1,
-        const Eigen::RowVector3d& a2,
-        const Eigen::RowVector3d& a3,
-        GenerateNumberInUnitInterval& generator) {
+        const Eigen::RowVector3d& a,
+        const Eigen::RowVector3d& b,
+        const Eigen::RowVector3d& c,
+        GenerateNumberWithinInterval& generator) {
 
-    double a = generator();
-    double b = generator();
+    double t = generator();
+    double s = generator();
 
-    return a1 + (a * (a3 - a1)) + (b * (a2 -a1));
+    if (t + s > 1) {
+        t = 1 - t;
+        s = 1 - s;
+    }
+
+    return a + t * (c - a) + s * (b - a);
 }
 
 /** Binary search of a vector.
  *
  * @param t a randomly generated fraction of the total area of all faces.
  * @param C the vector (Nx1) to be searched.
- * @return an greatest index, idx, where t > C[idx].
+ * @return the greatest index where t > C[idx].
  */
 int binary_search_vector(const double t, const Eigen::MatrixXd& C) {
     int N = C.rows()-1;
     assert(C.cols() == 1);
-    assert(C(0,0) == 0);
+    assert(C(0,0) == 0); // zero prefix
     assert(t <= C(N,0));
 
     auto func = [](int m) { return (int) std::ceil(double(m)/2.0); };
@@ -60,16 +65,16 @@ void random_points_on_mesh(
   // compute the double areas of each face, and subsequently the cumulative sum
   // of the face area vector.
   Eigen::MatrixXd A, C;
-  X.resize(n,3);
-  A.resize(F.rows(),1);
-  C.resize(F.rows()+1,1);
-  igl::doublearea(V, F,A);
-  igl::cumsum(A, 1, true,C);
+  X.resize(n, 3);
+  A.resize(F.rows(), 1);
+  C.resize(F.rows()+1, 1);
+  igl::doublearea(V, F, A);
+  igl::cumsum(A, 1, true, C);
 
   // create random number generator for range [0, areaSum]
   double areaSum            = C(C.rows() - 1, 0);
-  auto faceGenerator        = GenerateNumberInUnitInterval(areaSum);
-  auto pointInFaceGenerator = GenerateNumberInUnitInterval(1.0);
+  auto faceGenerator        = GenerateNumberWithinInterval(areaSum);
+  auto pointInFaceGenerator = GenerateNumberWithinInterval(1.0);
 
   // generate samples
   for (int i = 0; i < n; i++) {

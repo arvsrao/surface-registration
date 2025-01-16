@@ -6,6 +6,25 @@
 #include <iostream>
 #include <string>
 
+void simple_binary_search_test() {
+    std::vector<double> ts = { 0.2, 0.8, 1.2, 1.4 };
+    std::vector<int> indices = { 0, 1, 1, 2 };
+
+    // C is zero padded.
+    Eigen::MatrixXd C;
+    C.resize(4,1);
+    C << 0, 0.6666, 1.3333, 2.0;
+
+    for (int i = 0; i < ts.size(); i++) {
+        int idx = binary_search_vector(ts[i], C);
+
+        if (idx != indices[i]) {
+            std::cout << "Failed!! idx = " + std::to_string(i) + " does NOT equal " + std::to_string(indices[i]) << "\n";
+            assert(false);
+        }
+    }
+}
+
 void binary_search_test() {
     std::vector<double> ts = { 0.5, 3.0, 5.0, 6.0, 13.0, 16.0, 19.0, 19.5 };
     std::vector<int> indices = { 0, 3, 4, 5, 7, 9, 10, 10 };
@@ -49,6 +68,7 @@ void cumulative_area_test() {
 }
 
 int main() {
+    simple_binary_search_test();
     binary_search_test();
     cumulative_area_test();
 }

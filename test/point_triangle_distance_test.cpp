@@ -2,7 +2,7 @@
 #include <point_triangle_distance.h>
 #include <Eigen/Core>
 
-/** project point in the plan of a given triangle to nearest point on the triangle. */
+/** project point in the plane of a given triangle to nearest point on the triangle. */
 void project_to_triangle_test()
 {
     // define triangle in Y-Z plane.

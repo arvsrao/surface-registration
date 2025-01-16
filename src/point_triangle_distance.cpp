@@ -1,6 +1,7 @@
 #define DEBUG false
 #include "point_triangle_distance.h"
-#include "igl/per_face_normals.h"
+#include <Eigen/Geometry>
+#include <iostream>
 
 Eigen::RowVector3d BarycentricCoordinates::project_to_edge(
         const Eigen::RowVector3d & p,
@@ -71,16 +72,15 @@ void BarycentricCoordinates::compute_barycentric_coords_kramer_rule(const Eigen:
     printCoefficients();
 }
 
-/** If the point p is not in the triangle project it to the nearst point on the triangle; either a vertex or
- *  a point in an edge.
+/** If the point p is not in the triangle project it to the nearst point on the triangle; either
+ * a vertex or a point on an edge. Barycentric coordinates divide the plane into 7 regions.
+ * See https://ceng2.ktu.edu.tr/~cakir/files/grafikler/Texture_Mapping.pdf
+ *
  * @param p must be a point already in the plane of triangle.
  */
 Eigen::RowVector3d BarycentricCoordinates::project_to_triangle()
 {
-    if (_t.x() >= 0 && _t.y() >= 0 && _t.z() >= 0) {
-        return _p; // inside the triangle
-    }
-    else if (_t.x() > 0 && _t.y() <= 0 && _t.z() <= 0) {
+    if (_t.x() > 0 && _t.y() <= 0 && _t.z() <= 0) {
         return _v1;
     }
     else if (_t.x() <= 0 && _t.y() > 0 && _t.z() <= 0) {
@@ -98,6 +98,9 @@ Eigen::RowVector3d BarycentricCoordinates::project_to_triangle()
     else if (_t.x() >= 0 && _t.y() < 0 && _t.z() >= 0) {
         return project_to_edge(_p, _v1, _v3);
     }
+    else {
+        return _p; // inside the triangle
+    }
 }
 
 BarycentricCoordinates::BarycentricCoordinates(
@@ -106,7 +109,7 @@ BarycentricCoordinates::BarycentricCoordinates(
             const Eigen::RowVector3d &c,
             const double t1,
             double t2,
-            double t3) : _v1(a), _v2(b), _v3(c), _t(t1, t2, t3), _p(_t.x() * a + _t.y() * b + _t.z() * c) {}
+            double t3) : _t(t1, t2, t3), _p(t1 * a + t2 * b + t3 * c), _v1(a), _v2(b), _v3(c) {}
 
 BarycentricCoordinates::BarycentricCoordinates(
         const Eigen::RowVector3d& p,
