@@ -38,7 +38,7 @@ Eigen::RowVector3d generate_point_on_face(
  * @param C the vector (Nx1) to be searched.
  * @return the greatest index where t > C[idx].
  */
-int binary_search_vector(const double t, const Eigen::MatrixXd& C) {
+int iterative_binary_search_vector(const double t, const Eigen::MatrixXd& C) {
     int N = C.rows()-1;
     assert(C.cols() == 1);
     assert(C(0,0) == 0); // zero prefix
@@ -54,6 +54,25 @@ int binary_search_vector(const double t, const Eigen::MatrixXd& C) {
 
     // search failed
     return -1;
+}
+
+int binary_search(const double& t, int startIdx, int endIdx, const Eigen::MatrixXd& C) {
+    if (startIdx == endIdx) return startIdx;
+
+    int midIdx = std::ceil((endIdx - startIdx) / 2.0) + startIdx;
+    // std::cout << "midIx = " + std::to_string(midIdx) << "\n";
+
+    if (t < C(midIdx,0))
+        return binary_search(t, startIdx, midIdx - 1, C);
+    return binary_search(t, midIdx, endIdx, C);
+}
+
+int binary_search(const double& t, const Eigen::MatrixXd& C) {
+    int N = C.rows() - 1;
+    assert(C.cols() == 1);
+    assert(C(0,0) == 0); // zero prefix
+    assert(t <= C(N,0));
+    return binary_search(t, 0, N, C);
 }
 
 void random_points_on_mesh(
@@ -80,7 +99,7 @@ void random_points_on_mesh(
   for (int i = 0; i < n; i++) {
 
       // find the face to sample
-      int faceIdx = binary_search_vector(faceGenerator(), C);
+      int faceIdx = binary_search(faceGenerator(), C);
       Eigen::RowVector3i face = F.row(faceIdx);
 
       X.row(i) << generate_point_on_face(

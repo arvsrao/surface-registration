@@ -16,10 +16,10 @@ void simple_binary_search_test() {
     C << 0, 0.6666, 1.3333, 2.0;
 
     for (int i = 0; i < ts.size(); i++) {
-        int idx = binary_search_vector(ts[i], C);
+        int idx = binary_search(ts[i], C);
 
         if (idx != indices[i]) {
-            std::cout << "Failed!! idx = " + std::to_string(i) + " does NOT equal " + std::to_string(indices[i]) << "\n";
+            std::cout << "Failed!! idx = " + std::to_string(idx) + " does NOT equal " + std::to_string(indices[i]) << "\n";
             assert(false);
         }
     }
@@ -35,7 +35,7 @@ void binary_search_test() {
     C << 0, 1, 2.5, 2.8, 4.5, 5.9, 8.5, 10.8, 14.5, 15.7, 18.8, 20.0;
 
     for (int i = 0; i < ts.size(); i++) {
-        int idx = binary_search_vector(ts[i], C);
+        int idx = binary_search(ts[i], C);
 
         if (idx != indices[i]) {
             std::cout << "Failed!! idx = " + std::to_string(i) + " does NOT equal " + std::to_string(indices[i]) << "\n";
@@ -58,7 +58,7 @@ void cumulative_area_test() {
     igl::cumsum(A, 1, true, C);
 
     for (int i = 0; i < ts.size(); i++) {
-        int idx = binary_search_vector(ts[i], C);
+        int idx = binary_search(ts[i], C);
 
         if (idx != indices[i]) {
             std::cout << "Failed!! idx = " + std::to_string(i) + " does NOT equal " + std::to_string(indices[i]) << "\n";

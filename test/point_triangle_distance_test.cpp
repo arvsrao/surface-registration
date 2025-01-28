@@ -1,3 +1,4 @@
+#include <iostream>
 #include <catch2/catch_test_macros.hpp>
 #include <point_triangle_distance.h>
 #include <Eigen/Core>
@@ -75,8 +76,21 @@ void point_triangle_test()
     assert((p - a).norm() < EPSILON);
 }
 
+void simple_eigen_test() {
+    Eigen::MatrixXd X(3,3), Y(3,1), N(3,3);
+    Eigen::Vector3d p;
+    p << 0, 0, 1;
+    N << 0, 1, 0, 0, 0, 1, 1, 0, 0;
+    X << 1, 0, 0, 0, 1, 0, 0, 0, 1;
+
+    Y << X.rowwise() - N.colwise().sum();
+    std::cout << Y << "\n";
+}
+
 int main()
 {
     project_to_triangle_test();
     point_triangle_test();
+
+    simple_eigen_test();
 }
