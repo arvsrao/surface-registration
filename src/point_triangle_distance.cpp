@@ -122,17 +122,15 @@ void point_triangle_distance(
   const Eigen::RowVector3d & a,
   const Eigen::RowVector3d & b,
   const Eigen::RowVector3d & c,
+  const Eigen::RowVector3d & n,
   double & d,
   Eigen::RowVector3d & p)
 {
   // project 'x' to the plane of the triangle.
-  auto v = b - a;
-  auto w = c - a;
-  auto n = v.cross(w);
-  double t = (a - x).dot(n) / n.dot(n);
-  p = x + t * n;
+  // auto v = b - a; auto w = c - a; auto n = v.cross(w);
+  double t = (x - a).dot(n);
 
-  BarycentricCoordinates bcc = BarycentricCoordinates(p, a, b, c);
+  BarycentricCoordinates bcc = BarycentricCoordinates(x - t * n, a, b, c);
   p = bcc.project_to_triangle();
   d = (x-p).norm();
 }
