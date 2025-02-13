@@ -8,29 +8,28 @@ void point_to_plane_rigid_matching(
   Eigen::Matrix3d & R,
   Eigen::RowVector3d & t)
 {
-    Eigen::MatrixXd Y(X.rows(),6), PX;
-    Eigen::Vector3d b, v, w;
-    Eigen::Matrix3d A;
+    Eigen::MatrixXd Y(X.rows(),6), B(X.rows(), 3), b(6,1);
+    Eigen::RowVector3d v, w;
+    Eigen::MatrixXd A(6,6);
     A.setZero();
+    B.setZero();
     b.setZero();
 
     for (int idx = 0; idx < X.rows(); idx++) {
-        w << N.row(idx);
-        v << X.row(idx);
-        Y.row(idx) << v.cross(w), w;
+        w << N(idx, 0), N(idx, 1), N(idx, 2);
+        v << X(idx, 0), X(idx, 1), X(idx, 2);
+        v = v.cross(w);
+        Y.row(idx) << v(0), v(1), v(2), w(0), w(1), w(2);
     }
 
-    PX = P - X;
+    b = Y.transpose() * ((P - X) * N.transpose()).diagonal(); // 6 x n * (n x 1)
+    A = Y.transpose() * Y;
 
-    for (int idx = 0; idx < Y.rows(); idx++) {
-        A += Y.row(idx).transpose() * Y.row(idx);
-        b += Y.row(idx).transpose() * N.row(idx) * PX.row(idx);
-    }
+    auto u = A.inverse() * b;
 
-    auto u = (-A.inverse() * b).eval();
-
-    R << 1, -u(2), u(1),
-        u(2), 1, -u(0),
-        -u(1), u(0), 1;
-    t << u(3), u(4), u(5);
+     R << 1, -u(5), u(4),
+         u(5), 1, -u(3),
+         -u(4), u(3), 1;
+     //R = R.inverse();
+    t << u(0), u(1), u(2);
 }
