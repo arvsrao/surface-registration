@@ -8,6 +8,8 @@
 #include <string>
 #include <iostream>
 
+#include "kdtree.h"
+
 int main(int argc, char *argv[])
 {
   // Load input meshes
@@ -17,6 +19,18 @@ int main(int argc, char *argv[])
     (argc>1?argv[1]:"../data/max-registration-partial.obj"),OVX,FX);
   igl::read_triangle_mesh(
     (argc>2?argv[2]:"../data/max-registration-complete.obj"),VY,FY);
+
+  PointType<3> v;
+  std::vector<Node<3>*> nodes;
+  for (int faceIdx = 0; faceIdx < FY.rows(); faceIdx++) {
+    for (int j = 0; j < FY.cols(); j++) {
+      int vertexIdx = FY(faceIdx, j);
+      v << VY(vertexIdx, 0), VY(vertexIdx, 1), VY(vertexIdx, 2);
+      nodes.push_back(new Node<3>(v, faceIdx));
+    }
+  }
+
+  KdTree<3> octree(nodes);
 
   int num_samples = 100;
   bool show_samples = true;
